@@ -1,4 +1,3 @@
-// ProductList.tsx
 'use client'
 
 import Card from '@mui/material/Card'
@@ -16,7 +15,7 @@ interface IProps {
     products: IProduct[]
 }
 
-export default function ProductList({ products }: IProps) {
+const ProductList: React.FC<IProps> = ({ products }) => {
     const [page, setPage] = useState(1)
     const itemsPerPage = 12
     const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -29,7 +28,7 @@ export default function ProductList({ products }: IProps) {
     const paginatedProducts = products.slice(startIndex, endIndex)
 
     return (
-        <Box sx={{ flexGrow: 1, marginTop: 6 }}>
+        <Box sx={{ flexGrow: 1, marginLeft: 2 }}>
             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                 {paginatedProducts.map((prod: IProduct, index: number) => (
                     <Grid item xs={2} sm={3} md={3} key={index}>
@@ -58,7 +57,9 @@ export default function ProductList({ products }: IProps) {
                                 <Button size="small">
                                     <Link href={`/products/${prod.id}`}>See Detail</Link>
                                 </Button>
-                                <Button size="small">Add Product</Button>
+                                {/* <Button size="small" onClick={() => onAddToCart(prod)}>
+                                    Add Cart
+                                </Button> */}
                             </CardActions>
                         </Card>
                     </Grid>
@@ -76,3 +77,5 @@ export default function ProductList({ products }: IProps) {
         </Box>
     )
 }
+
+export default ProductList

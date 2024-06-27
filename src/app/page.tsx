@@ -1,23 +1,40 @@
 // Home.tsx
+'use client'
+
 import MenuHome from '@/components/menuHome'
 import ProductList from '@/components/productList'
-import { baseUrl } from '@/utils/baseUrl'
+import { DataJsonUrl } from '@/utils/baseUrl'
 import { Box } from '@mui/material'
+import { useState, useEffect } from 'react'
 
-async function getProducts() {
-    const res = await fetch(`${baseUrl}/products`)
+async function getProducts(categoryId: string | null = null) {
+    let url = `${DataJsonUrl}/products?_sort=-createdAt`
+    if (categoryId) {
+        url += `&categoryId=${categoryId}`
+    }
+    const res = await fetch(url)
     const products = await res.json()
     return products
 }
 
-export default async function Home() {
-    // Fetch data directly in a Server Component
-    const recentProducts = await getProducts()
-    // Forward fetched data to your Client Component
+export default function Home() {
+    const [recentProducts, setRecentProducts] = useState<IProduct[]>([])
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+
+    useEffect(() => {
+        async function fetchProducts() {
+            const products = await getProducts(selectedCategory)
+            setRecentProducts(products)
+        }
+        fetchProducts()
+    }, [selectedCategory])
+
     return (
-        <Box className="flex">
-            <MenuHome />
-            <ProductList products={recentProducts} />
+        <Box>
+            <Box className="flex my-12">
+                <MenuHome onSelectCategory={setSelectedCategory} />
+                <ProductList products={recentProducts} />
+            </Box>
         </Box>
     )
 }

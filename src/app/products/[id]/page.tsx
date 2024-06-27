@@ -1,12 +1,12 @@
 import ProductDetail from '@/components/productDetail'
-import { baseUrl } from '@/utils/baseUrl'
+import { DataJsonUrl } from '@/utils/baseUrl'
 
 interface Params {
     params: { id: string }
 }
 
 async function getDetailProduct({ id }: { id: string }): Promise<IProduct> {
-    const res = await fetch(`${baseUrl}/products/${id}`)
+    const res = await fetch(`${DataJsonUrl}/products/${id}`)
     const prod: IProduct = await res.json()
     return prod
 }
