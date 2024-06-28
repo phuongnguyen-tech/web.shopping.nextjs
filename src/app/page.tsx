@@ -1,10 +1,9 @@
-// Home.tsx
 'use client'
 
 import MenuHome from '@/components/menuHome'
 import ProductList from '@/components/productList'
 import { DataJsonUrl } from '@/utils/baseUrl'
-import { Box } from '@mui/material'
+import { Box, Container } from '@mui/material'
 import { useState, useEffect } from 'react'
 
 async function getProducts(categoryId: string | null = null) {
@@ -30,11 +29,9 @@ export default function Home() {
     }, [selectedCategory])
 
     return (
-        <Box>
-            <Box className="flex my-12">
-                <MenuHome onSelectCategory={setSelectedCategory} />
-                <ProductList products={recentProducts} />
-            </Box>
+        <Box className="flex my-12">
+            <MenuHome onSelectCategory={setSelectedCategory} />
+            <ProductList products={recentProducts} />
         </Box>
     )
 }

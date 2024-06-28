@@ -1,23 +1,28 @@
 'use client'
 
-import * as React from 'react'
+import React, { useState } from 'react'
 import { styled, alpha } from '@mui/material/styles'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import InputBase from '@mui/material/InputBase'
 import Badge from '@mui/material/Badge'
-import MenuItem from '@mui/material/MenuItem'
 import Menu from '@mui/material/Menu'
-import MenuIcon from '@mui/icons-material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import SearchIcon from '@mui/icons-material/Search'
 import AccountCircle from '@mui/icons-material/AccountCircle'
 import MailIcon from '@mui/icons-material/Mail'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import MoreIcon from '@mui/icons-material/MoreVert'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import Link from 'next/link'
+import { useDispatch, useSelector } from 'react-redux'
+import CartItem from '@/components/cartItem'
+import { RootState } from '@/redux/store'
+import { removeFromCart } from '@/redux/cartSlice'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -28,6 +33,7 @@ const Search = styled('div')(({ theme }) => ({
     },
     marginRight: theme.spacing(2),
     marginLeft: 0,
+    color: 'black',
     width: '100%',
     [theme.breakpoints.up('sm')]: {
         marginLeft: theme.spacing(3),
@@ -41,46 +47,39 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
     position: 'absolute',
     pointerEvents: 'none',
     display: 'flex',
+    color: 'black',
     alignItems: 'center',
     justifyContent: 'center',
 }))
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
-    '& .MuiInputBase-input': {
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create('width'),
-        width: '100%',
-        [theme.breakpoints.up('md')]: {
-            width: '20ch',
-        },
-    },
-}))
+export default function Header() {
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+    const [isCartHovered, setIsCartHovered] = useState<boolean>(false)
+    const dispatch = useDispatch()
+    const cartItems = useSelector((state: RootState) => state.cart.items)
 
-export default function PrimarySearchAppBar() {
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-    const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState<null | HTMLElement>(null)
+    const router = useRouter()
 
     const isMenuOpen = Boolean(anchorEl)
-    const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
 
     const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget)
     }
 
-    const handleMobileMenuClose = () => {
-        setMobileMoreAnchorEl(null)
-    }
-
     const handleMenuClose = () => {
         setAnchorEl(null)
-        handleMobileMenuClose()
     }
 
-    const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-        setMobileMoreAnchorEl(event.currentTarget)
+    const handleCartHover = () => {
+        setIsCartHovered(true)
+    }
+
+    const handleCartLeave = () => {
+        setIsCartHovered(false)
+    }
+
+    const handleCartClick = () => {
+        router.push('/cart')
     }
 
     const menuId = 'primary-search-account-menu'
@@ -105,54 +104,6 @@ export default function PrimarySearchAppBar() {
         </Menu>
     )
 
-    const mobileMenuId = 'primary-search-account-menu-mobile'
-    const renderMobileMenu = (
-        <Menu
-            anchorEl={mobileMoreAnchorEl}
-            anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-            }}
-            id={mobileMenuId}
-            keepMounted
-            transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-            }}
-            open={isMobileMenuOpen}
-            onClose={handleMobileMenuClose}
-        >
-            <MenuItem>
-                <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-                    <Badge badgeContent={4} color="error">
-                        <MailIcon />
-                    </Badge>
-                </IconButton>
-                <p>Messages</p>
-            </MenuItem>
-            <MenuItem>
-                <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
-                    <Badge badgeContent={17} color="error">
-                        <NotificationsIcon />
-                    </Badge>
-                </IconButton>
-                <p>Notifications</p>
-            </MenuItem>
-            <MenuItem onClick={handleProfileMenuOpen}>
-                <IconButton
-                    size="large"
-                    aria-label="account of current user"
-                    aria-controls="primary-search-account-menu"
-                    aria-haspopup="true"
-                    color="inherit"
-                >
-                    <AccountCircle />
-                </IconButton>
-                <p>Profile</p>
-            </MenuItem>
-        </Menu>
-    )
-
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
@@ -169,12 +120,64 @@ export default function PrimarySearchAppBar() {
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>
-                        <StyledInputBase
-                            placeholder="Search…"
-                            inputProps={{ 'aria-label': 'search' }}
-                        />
+                        <input placeholder="Search…" />
                     </Search>
                     <Box sx={{ flexGrow: 1 }} />
+
+                    <Box
+                        onMouseEnter={handleCartHover}
+                        onMouseLeave={handleCartLeave}
+                        sx={{ position: 'relative' }}
+                    >
+                        <IconButton
+                            size="large"
+                            aria-label="cart"
+                            aria-haspopup="true"
+                            color="inherit"
+                            onClick={handleCartClick}
+                        >
+                            <Badge badgeContent={cartItems.length} color="error">
+                                <ShoppingCartIcon />
+                            </Badge>
+                        </IconButton>
+                        {isCartHovered && (
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    right: 0,
+                                    zIndex: 1,
+                                    bgcolor: 'background.paper',
+                                    boxShadow: 3,
+                                    borderRadius: 1,
+                                    p: 2,
+                                    width: '400px',
+                                }}
+                            >
+                                {cartItems.length > 0 ? (
+                                    cartItems.map((item: any) => (
+                                        <CartItem
+                                            key={item.id}
+                                            product={item}
+                                            onRemove={(productId: string) =>
+                                                dispatch(removeFromCart(productId))
+                                            }
+                                        />
+                                    ))
+                                ) : (
+                                    <Box>
+                                        <Image
+                                            src="/images/noProduct.png"
+                                            width={400}
+                                            height={500}
+                                            alt="Picture of the author"
+                                        />
+                                    </Box>
+                                )}
+                            </Box>
+                        )}
+                    </Box>
+
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         <IconButton size="large" aria-label="show 4 new mails" color="inherit">
                             <Badge badgeContent={4} color="error">
@@ -206,9 +209,7 @@ export default function PrimarySearchAppBar() {
                         <IconButton
                             size="large"
                             aria-label="show more"
-                            aria-controls={mobileMenuId}
                             aria-haspopup="true"
-                            onClick={handleMobileMenuOpen}
                             color="inherit"
                         >
                             <MoreIcon />
@@ -216,7 +217,6 @@ export default function PrimarySearchAppBar() {
                     </Box>
                 </Toolbar>
             </AppBar>
-            {renderMobileMenu}
             {renderMenu}
         </Box>
     )

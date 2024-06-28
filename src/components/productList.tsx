@@ -1,5 +1,7 @@
 'use client'
 
+// components/ProductList.tsx
+import React, { useState } from 'react'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
@@ -8,16 +10,19 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import { Box, Pagination } from '@mui/material'
-import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { addToCart } from '../redux/cartSlice'
 import Link from 'next/link'
 
 interface IProps {
     products: IProduct[]
 }
 
-const ProductList: React.FC<IProps> = ({ products }) => {
+export default function ProductList({ products }: IProps) {
+    const dispatch = useDispatch()
     const [page, setPage] = useState(1)
     const itemsPerPage = 12
+
     const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
         setPage(value)
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -26,6 +31,10 @@ const ProductList: React.FC<IProps> = ({ products }) => {
     const startIndex = (page - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     const paginatedProducts = products.slice(startIndex, endIndex)
+
+    const handleAddToCart = (product: IProduct) => {
+        dispatch(addToCart(product))
+    }
 
     return (
         <Box sx={{ flexGrow: 1, marginLeft: 2 }}>
@@ -57,9 +66,9 @@ const ProductList: React.FC<IProps> = ({ products }) => {
                                 <Button size="small">
                                     <Link href={`/products/${prod.id}`}>See Detail</Link>
                                 </Button>
-                                {/* <Button size="small" onClick={() => onAddToCart(prod)}>
+                                <Button size="small" onClick={() => handleAddToCart(prod)}>
                                     Add Cart
-                                </Button> */}
+                                </Button>
                             </CardActions>
                         </Card>
                     </Grid>
@@ -77,5 +86,3 @@ const ProductList: React.FC<IProps> = ({ products }) => {
         </Box>
     )
 }
-
-export default ProductList
